@@ -111,13 +111,11 @@ app.get('/summary/monthly', (req, res) => {
       SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) -
       SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS balance
     FROM transactions${whereClause}
-  `;
-  const groupedSql = `${sql}
     GROUP BY DATE_FORMAT(date, '%Y-%m')
     ORDER BY month DESC
   `;
 
-  db.query(groupedSql, values, (err, result) => {
+  db.query(sql, values, (err, result) => {
     if (err) return res.status(500).send(err);
     res.json(result);
   });
