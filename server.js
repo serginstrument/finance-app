@@ -85,7 +85,7 @@ app.post('/transactions', (req, res) => {
 });
 
 app.get('/summary', (req, res) => {
-  const { whereClause, values } = buildFilters(req.query);
+  const { whereClause, values } = buildFilters(req.query, { allowCategory: true });
   const sql = `
     SELECT
       SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS total_income,
@@ -102,57 +102,29 @@ app.get('/summary', (req, res) => {
 });
 
 app.get('/summary/monthly', (req, res) => {
-  const { type, category, from, to } = req.query;
-  const conditions = [];
-  const values = [];
-
-  if (type) {
-    conditions.push('type = ?');
-    values.push(type);
-  }
-
-  if (category) {
-    conditions.push('category = ?');
-    values.push(category);
-  }
-
-  if (from) {
-    conditions.push('date >= ?');
-    values.push(from);
-  }
-
-  if (to) {
-    conditions.push('date <= ?');
-    values.push(to);
-  }
-
-  let sql = `
+  const { whereClause, values } = buildFilters(req.query, { allowCategory: true });
+  const sql = `
     SELECT
       DATE_FORMAT(date, '%Y-%m') AS month,
       SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS total_income,
       SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS total_expense,
       SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) -
       SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS balance
-    FROM transactions
+    FROM transactions${whereClause}
   `;
-
-  if (conditions.length > 0) {
-    sql += ` WHERE ${conditions.join(' AND ')}`;
-  }
-
-  sql += `
+  const groupedSql = `${sql}
     GROUP BY DATE_FORMAT(date, '%Y-%m')
     ORDER BY month DESC
   `;
 
-  db.query(sql, values, (err, result) => {
+  db.query(groupedSql, values, (err, result) => {
     if (err) return res.status(500).send(err);
     res.json(result);
   });
 });
 
 app.get('/balance/by-category', (req, res) => {
-  const { whereClause, values } = buildFilters(req.query);
+  const { whereClause, values } = buildFilters(req.query, { allowCategory: true });
   const sql = `
     SELECT
       category,
