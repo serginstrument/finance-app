@@ -7,6 +7,7 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static('.'));
 
 function buildFilters(query, options = {}) {
   const { allowCategory = false } = options;
@@ -68,30 +69,71 @@ app.get('/transactions', (req, res) => {
     res.json(result);
   });
 });
+app.get('/categories', (req, res) => {
+  const { type } = req.query;
+
+  let sql = 'SELECT * FROM categories';
+  const values = [];
+
+  if (type) {
+    sql += ' WHERE type = ?';
+    values.push(type);
+  }
+
+  sql += ' ORDER BY name ASC';
+
+  db.query(sql, values, (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.json(result);
+  });
+});
+
+app.get('/subcategories', (req, res) => {
+  const { category_id } = req.query;
+
+  let sql = 'SELECT * FROM subcategories';
+  const values = [];
+
+  if (category_id) {
+    sql += ' WHERE category_id = ?';
+    values.push(category_id);
+  }
+
+  sql += ' ORDER BY name ASC';
+
+  db.query(sql, values, (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.json(result);
+  });
+});
 
 app.post('/transactions', (req, res) => {
-  const { date, section, category, subcategory, type, amount, comment } = req.body;
+  const { date, section, category, subcategory, subcategory_id, type, amount, comment } = req.body;
 
   const sql = `
     INSERT INTO transactions
-    (date, section, category, subcategory, type, amount, comment)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (date, section, category, subcategory, subcategory_id, type, amount, comment)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [date, section, category, subcategory, type, amount, comment], err => {
-    if (err) return res.status(500).send(err);
-    res.send('Добавлено');
-  });
+  db.query(
+    sql,
+    [date, section, category, subcategory, subcategory_id || null, type, amount, comment],
+    err => {
+      if (err) return res.status(500).send(err);
+      res.send('Добавлено');
+    }
+  );
 });
 
 app.get('/summary', (req, res) => {
   const { whereClause, values } = buildFilters(req.query, { allowCategory: true });
   const sql = `
     SELECT
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS total_income,
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS total_expense,
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) -
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS balance
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS total_income,
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS total_expense,
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS balance
     FROM transactions${whereClause}
   `;
 
@@ -106,10 +148,10 @@ app.get('/summary/monthly', (req, res) => {
   const sql = `
     SELECT
       DATE_FORMAT(date, '%Y-%m') AS month,
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS total_income,
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS total_expense,
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) -
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS balance
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS total_income,
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS total_expense,
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS balance
     FROM transactions${whereClause}
     GROUP BY DATE_FORMAT(date, '%Y-%m')
     ORDER BY month DESC
@@ -126,10 +168,10 @@ app.get('/balance/by-category', (req, res) => {
   const sql = `
     SELECT
       category,
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) AS total_income,
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS total_expense,
-      SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) -
-      SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS balance
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS total_income,
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS total_expense,
+      COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+      COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS balance
     FROM transactions${whereClause}
     GROUP BY category
     ORDER BY category ASC
@@ -143,18 +185,22 @@ app.get('/balance/by-category', (req, res) => {
 
 app.put('/transactions/:id', (req, res) => {
   const { id } = req.params;
-  const { date, section, category, subcategory, type, amount, comment } = req.body;
+  const { date, section, category, subcategory, subcategory_id, type, amount, comment } = req.body;
 
   const sql = `
     UPDATE transactions
-    SET date=?, section=?, category=?, subcategory=?, type=?, amount=?, comment=?
+    SET date=?, section=?, category=?, subcategory=?, subcategory_id=?, type=?, amount=?, comment=?
     WHERE id=?
   `;
 
-  db.query(sql, [date, section, category, subcategory, type, amount, comment, id], err => {
-    if (err) return res.status(500).send(err);
-    res.send('Обновлено');
-  });
+  db.query(
+    sql,
+    [date, section, category, subcategory, subcategory_id || null, type, amount, comment, id],
+    err => {
+      if (err) return res.status(500).send(err);
+      res.send('Обновлено');
+    }
+  );
 });
 
 app.delete('/transactions/:id', (req, res) => {

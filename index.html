@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finance App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        h1,
+        h2 {
+            margin-bottom: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #summary {
+            margin: 12px 0 24px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f5f5f5;
+        }
+
+        .income {
+            color: green;
+            font-weight: bold;
+        }
+
+        .expense {
+            color: crimson;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Finance App</h1>
+
+    <h2>Add Transaction</h2>
+    <div class="form-row">
+        <input id="date" type="date" />
+        <input id="amount" type="number" step="0.01" placeholder="Amount" />
+        <select id="type" onchange="handleTypeChange()">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+        <select id="category" onchange="handleCategoryChange()">
+  <option value="">Select category</option>
+</select>
+
+<select id="subcategory">
+  <option value="">Select subcategory</option>
+</select>
+        
+        <input id="comment" placeholder="Comment" />
+        <button id="submit-btn" onclick="addTransaction()">Add</button>
+        <button id="cancel-btn" onclick="cancelEdit()" style="display:none;">Cancel</button>
+    </div>
+
+    <h2>Summary</h2>
+    <div id="summary">Loading...</div>
+
+    <h2>Transactions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Comment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="transactions-body"></tbody>
+    </table>
+
+   <script>
+  let editingId = null;
+  let selectedSubcategoryId = null;
+
+  document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    cancelEdit();
+  }
+});
+
+  async function loadSummary() {
+    try {
+      const res = await fetch('/summary');
+      const data = await res.json();
+
+      document.getElementById('summary').innerText =
+        `Income: ${data.total_income} | Expense: ${data.total_expense} | Balance: ${data.balance}`;
+    } catch (error) {
+      console.error('Summary error:', error);
+      document.getElementById('summary').innerText = 'Error loading summary';
+    }
+  }
+
+  async function loadCategories(type = '') {
+  try {
+    const url = type ? `/categories?type=${encodeURIComponent(type)}` : '/categories';
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const categorySelect = document.getElementById('category');
+    categorySelect.innerHTML = '<option value="">Select category</option>';
+
+    data.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      categorySelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Categories error:', error);
+  }
+}
+
+async function loadSubcategories(categoryId, selectedId = '') {
+  try {
+    const subcategorySelect = document.getElementById('subcategory');
+
+    if (!categoryId) {
+      subcategorySelect.innerHTML = '<option value="">Select subcategory</option>';
+      return;
+    }
+
+    const res = await fetch(`/subcategories?category_id=${encodeURIComponent(categoryId)}`);
+    const data = await res.json();
+
+    subcategorySelect.innerHTML = '<option value="">Select subcategory</option>';
+
+    data.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+
+      if (String(item.id) === String(selectedId)) {
+        option.selected = true;
+      }
+
+      subcategorySelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Subcategories error:', error);
+  }
+}
+
+async function handleCategoryChange() {
+  const categoryId = document.getElementById('category').value;
+
+  await loadSubcategories(categoryId);
+
+  document.getElementById('subcategory').disabled = false;
+}
+
+async function findCategoryIdByName(name, type) {
+  if (!name) return '';
+
+  try {
+    const res = await fetch(`/categories?type=${encodeURIComponent(type)}`);
+    const data = await res.json();
+
+    const match = data.find(item => item.name === name);
+    return match ? match.id : '';
+  } catch (error) {
+    console.error('Find category error:', error);
+    return '';
+  }
+}
+
+async function findSubcategoryIdByName(categoryId, name) {
+  if (!categoryId || !name) return '';
+
+  try {
+    const res = await fetch(`/subcategories?category_id=${encodeURIComponent(categoryId)}`);
+    const data = await res.json();
+
+    const match = data.find(item => item.name === name);
+    return match ? match.id : '';
+  } catch (error) {
+    console.error('Find subcategory error:', error);
+    return '';
+  }
+}
+
+  async function loadTransactions() {
+    try {
+      const res = await fetch('/transactions');
+      const data = await res.json();
+
+      const tbody = document.getElementById('transactions-body');
+      tbody.innerHTML = '';
+
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        const typeClass = item.type === 'income' ? 'income' : 'expense';
+
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td>${formatDate(item.date)}</td>
+          <td>${escapeHtml(item.category || '')}</td>
+          <td>${escapeHtml(item.subcategory || '')}</td>
+          <td class="${typeClass}">${item.type}</td>
+          <td class="${typeClass}">${item.amount}</td>
+          <td>${escapeHtml(item.comment || '')}</td>
+          <td>
+            <button onclick='startEdit(${JSON.stringify({
+              id: item.id,
+              date: item.date,
+              category: item.category || '',
+              subcategory: item.subcategory || '',
+              amount: item.amount,
+              type: item.type,
+              comment: item.comment || ''
+            })})'>Edit</button>
+            <button onclick="deleteTransaction(${item.id})">Delete</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      console.error('Transactions error:', error);
+    }
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString();
+  }
+
+ function toInputDate(dateString) {
+  if (!dateString) return '';
+
+  const d = new Date(dateString);
+
+  if (isNaN(d)) return '';
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+ 
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+ async function handleTypeChange() {
+  const type = document.getElementById('type').value;
+
+  await loadCategories(type);
+
+  document.getElementById('category').disabled = false;
+
+  document.getElementById('subcategory').innerHTML = '<option value="">Select subcategory</option>';
+  document.getElementById('subcategory').disabled = true;
+}
+
+  async function startEdit(item) {
+  editingId = item.id;
+
+  document.getElementById('date').value = toInputDate(item.date);
+  document.getElementById('amount').value = item.amount;
+  document.getElementById('type').value = item.type;
+  document.getElementById('comment').value = item.comment;
+
+  const categoryId = await findCategoryIdByName(item.category, item.type);
+  await loadCategories(item.type);
+
+  document.getElementById('category').value = categoryId || '';
+
+  const subcategoryId = await findSubcategoryIdByName(categoryId, item.subcategory);
+  await loadSubcategories(categoryId, subcategoryId);
+
+  selectedSubcategoryId = subcategoryId || null;
+
+  document.getElementById('submit-btn').innerText = 'Update';
+  document.getElementById('cancel-btn').style.display = 'inline-block';
+}
+
+ async function cancelEdit() {
+  editingId = null;
+  await resetForm();
+}
+
+ async function resetForm() {
+  document.getElementById('date').value = '';
+  document.getElementById('amount').value = '';
+  document.getElementById('type').value = 'income';
+  document.getElementById('comment').value = '';
+
+  document.getElementById('category').innerHTML = '<option value="">Select category</option>';
+  document.getElementById('subcategory').innerHTML = '<option value="">Select subcategory</option>';
+
+  selectedSubcategoryId = null;
+
+  document.getElementById('submit-btn').innerText = 'Add';
+  document.getElementById('cancel-btn').style.display = 'none';
+
+  await loadCategories(document.getElementById('type').value);
+  document.getElementById('category').disabled = true;
+  document.getElementById('subcategory').disabled = true;
+}
+
+  async function addTransaction() {
+  try {
+    const date =
+      document.getElementById('date').value ||
+      new Date().toISOString().slice(0, 10);
+
+    const amount = document.getElementById('amount').value;
+    const categorySelect = document.getElementById('category');
+    const subcategorySelect = document.getElementById('subcategory');
+    const type = document.getElementById('type').value;
+    const comment = document.getElementById('comment').value.trim();
+
+    const category_id = categorySelect.value;
+    const subcategory_id = subcategorySelect.value;
+
+    const category = categorySelect.options[categorySelect.selectedIndex]?.text || '';
+    const subcategory = subcategorySelect.options[subcategorySelect.selectedIndex]?.text || '';
+
+    if (!amount || !category_id || !subcategory_id) {
+      alert('Enter amount, category and subcategory');
+      return;
+    }
+
+    const url = editingId ? `/transactions/${editingId}` : '/transactions';
+    const method = editingId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date,
+        section: 'budget',
+        category,
+        subcategory,
+        subcategory_id,
+        type,
+        amount,
+        comment
+      })
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'Request failed');
+    }
+
+    editingId = null;
+    await resetForm();
+
+    await loadSummary();
+    await loadTransactions();
+  } catch (error) {
+    console.error('Add/update error:', error);
+    alert('Error saving transaction. Open F12 → Console');
+  }
+}
+  async function deleteTransaction(id) {
+    try {
+      if (!confirm('Delete this transaction?')) return;
+
+      const res = await fetch(`/transactions/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Delete failed');
+      }
+
+      if (editingId === id) {
+        editingId = null;
+        resetForm();
+      }
+
+      await loadSummary();
+      await loadTransactions();
+    } catch (error) {
+      console.error('Delete error:', error);
+    }
+  }
+
+ loadSummary();
+loadTransactions();
+loadCategories('income');
+</script>
+</body>
+
+</html>
