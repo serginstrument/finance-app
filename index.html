@@ -98,11 +98,36 @@
     <h2>Summary</h2>
     <div id="summary">Loading...</div>
 
+<h2>Filters</h2>
+<div class="form-row">
+  <input id="filter-from" type="date" />
+  <input id="filter-to" type="date" />
+
+  <select id="filter-type" onchange="handleFilterTypeChange()">
+    <option value="">All types</option>
+    <option value="income">Income</option>
+    <option value="expense">Expense</option>
+  </select>
+
+  <select id="filter-category" onchange="handleFilterCategoryChange()" disabled>
+  <option value="">All categories</option>
+</select>
+
+<select id="filter-subcategory" disabled>
+  <option value="">All subcategories</option>
+</select>
+
+  <button onclick="applyFilters()">Apply Filters</button>
+  <button onclick="clearFilters()">Clear Filters</button>
+</div> 
+
+<input id="search-comment" placeholder="Search by comment..." oninput="handleSearch()" />
+
     <h2>Transactions</h2>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th>#</th>
                 <th>Date</th>
                 <th>Category</th>
                 <th>Subcategory</th>
@@ -114,10 +139,18 @@
         </thead>
         <tbody id="transactions-body"></tbody>
     </table>
+<div style="margin-top: 10px;">
+  <button id="prev-btn" onclick="prevPage()">Prev</button>
+  <span id="page-info">Page 1</span>
+  <button id="next-btn" onclick="nextPage()">Next</button>
+</div>
 
    <script>
   let editingId = null;
   let selectedSubcategoryId = null;
+  let currentPage = 1;
+  const limit = 10;
+  let hasNextPage = false;
 
   document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') {
@@ -127,7 +160,8 @@
 
   async function loadSummary() {
     try {
-      const res = await fetch('/summary');
+      const query = getFiltersQuery();
+      const res = await fetch(query ? `/summary?${query}` : '/summary');
       const data = await res.json();
 
       document.getElementById('summary').innerText =
@@ -226,20 +260,101 @@ async function findSubcategoryIdByName(categoryId, name) {
   }
 }
 
+async function loadFilterCategories(type = '') {
+  try {
+    const categorySelect = document.getElementById('filter-category');
+
+    if (!type) {
+      categorySelect.innerHTML = '<option value="">All categories</option>';
+      categorySelect.disabled = true;
+      return;
+    }
+
+    const res = await fetch(`/categories?type=${encodeURIComponent(type)}`);
+    const data = await res.json();
+
+    categorySelect.innerHTML = '<option value="">All categories</option>';
+
+    data.forEach(item => {
+  const option = document.createElement('option');
+  option.value = item.id;
+  option.textContent = item.name;
+  categorySelect.appendChild(option);
+});
+
+    categorySelect.disabled = false;
+  } catch (error) {
+    console.error('Filter categories error:', error);
+  }
+}
+
+async function loadFilterSubcategories(categoryId = '') {
+  try {
+    const subcategorySelect = document.getElementById('filter-subcategory');
+
+    if (!categoryId) {
+      subcategorySelect.innerHTML = '<option value="">All subcategories</option>';
+      subcategorySelect.disabled = true;
+      return;
+    }
+
+    const res = await fetch(`/subcategories?category_id=${encodeURIComponent(categoryId)}`);
+    const data = await res.json();
+
+    subcategorySelect.innerHTML = '<option value="">All subcategories</option>';
+
+    data.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.name;
+      option.textContent = item.name;
+      subcategorySelect.appendChild(option);
+    });
+
+    subcategorySelect.disabled = false;
+  } catch (error) {
+    console.error('Filter subcategories error:', error);
+  }
+}
+
+async function handleFilterTypeChange() {
+  const type = document.getElementById('filter-type').value;
+  await loadFilterCategories(type);
+}
+
+async function handleFilterCategoryChange() {
+  const categoryId = document.getElementById('filter-category').value;
+  await loadFilterSubcategories(categoryId);
+}
+
   async function loadTransactions() {
     try {
-      const res = await fetch('/transactions');
-      const data = await res.json();
+      const query = getFiltersQuery();
+
+const search = document.getElementById('search-comment').value;
+
+const params = new URLSearchParams(query);
+
+if (search) {
+  params.append('comment', search);
+}
+
+params.append('page', currentPage);
+params.append('limit', limit);
+
+const finalQuery = params.toString();
+const res = await fetch(finalQuery ? `/transactions?${finalQuery}` : '/transactions');
+const data = await res.json();
+hasNextPage = data.length === limit;
 
       const tbody = document.getElementById('transactions-body');
       tbody.innerHTML = '';
 
-      data.forEach(item => {
+      data.forEach((item, index) => {
         const tr = document.createElement('tr');
         const typeClass = item.type === 'income' ? 'income' : 'expense';
-
+        const rowNumber = (currentPage - 1) * limit + index + 1;
         tr.innerHTML = `
-          <td>${item.id}</td>
+          <td>${rowNumber}</td>
           <td>${formatDate(item.date)}</td>
           <td>${escapeHtml(item.category || '')}</td>
           <td>${escapeHtml(item.subcategory || '')}</td>
@@ -262,10 +377,82 @@ async function findSubcategoryIdByName(categoryId, name) {
 
         tbody.appendChild(tr);
       });
+      updatePageInfo();
     } catch (error) {
       console.error('Transactions error:', error);
     }
   }
+
+function updatePaginationButtons() {
+  document.getElementById('prev-btn').disabled = currentPage === 1;
+  document.getElementById('next-btn').disabled = !hasNextPage;
+}
+
+  let searchTimeout = null;
+
+function handleSearch() {
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+    currentPage = 1;
+    updatePageInfo();
+    loadTransactions();
+  }, 300);
+}
+
+function getFiltersQuery() {
+  const from = document.getElementById('filter-from').value;
+  const to = document.getElementById('filter-to').value;
+  const type = document.getElementById('filter-type').value;
+
+  const categorySelect = document.getElementById('filter-category');
+  const subcategorySelect = document.getElementById('filter-subcategory');
+
+  const category =
+    categorySelect.value
+      ? categorySelect.options[categorySelect.selectedIndex]?.text
+      : '';
+
+  const subcategory =
+    subcategorySelect.value
+      ? subcategorySelect.options[subcategorySelect.selectedIndex]?.text
+      : '';
+
+  const params = new URLSearchParams();
+
+  if (from) params.append('from', from);
+  if (to) params.append('to', to);
+  if (type) params.append('type', type);
+  if (category) params.append('category', category);
+  if (subcategory) params.append('subcategory', subcategory);
+
+  return params.toString();
+}
+
+async function applyFilters() {
+  currentPage = 1;
+  updatePageInfo();
+  await loadSummary();
+  await loadTransactions();
+}
+
+async function clearFilters() {
+  document.getElementById('filter-from').value = '';
+  document.getElementById('filter-to').value = '';
+  document.getElementById('filter-type').value = '';
+
+  document.getElementById('filter-category').innerHTML = '<option value="">All categories</option>';
+  document.getElementById('filter-category').disabled = true;
+
+  document.getElementById('filter-subcategory').innerHTML = '<option value="">All subcategories</option>';
+  document.getElementById('filter-subcategory').disabled = true;
+
+  currentPage = 1;
+  updatePageInfo();
+
+  await loadSummary();
+  await loadTransactions();
+}
 
   function formatDate(dateString) {
     if (!dateString) return '';
@@ -433,9 +620,28 @@ async function findSubcategoryIdByName(categoryId, name) {
     }
   }
 
+function updatePageInfo() {
+  document.getElementById('page-info').innerText = `Page ${currentPage}`;
+  updatePaginationButtons();
+}
+
+function nextPage() {
+  if (!hasNextPage) return;
+  currentPage++;
+  loadTransactions();
+}
+
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadTransactions();
+  }
+}
+
  loadSummary();
 loadTransactions();
 loadCategories('income');
+updatePageInfo();
 </script>
 </body>
 

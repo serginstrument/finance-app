@@ -9,9 +9,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
+
 function buildFilters(query, options = {}) {
   const { allowCategory = false } = options;
-  const { type, category, from, to } = query;
+  const { type, category, subcategory, comment, from, to } = query;
   const conditions = [];
   const values = [];
 
@@ -24,6 +25,16 @@ function buildFilters(query, options = {}) {
     conditions.push('category = ?');
     values.push(category);
   }
+
+  if (subcategory) {
+  conditions.push('subcategory = ?');
+  values.push(subcategory);
+}
+
+if (comment) {
+  conditions.push('comment LIKE ?');
+  values.push(`%${comment}%`);
+}
 
   if (from) {
     conditions.push('date >= ?');
@@ -61,10 +72,20 @@ app.get('/', (req, res) => {
 });
 
 app.get('/transactions', (req, res) => {
-  const { whereClause, values } = buildFilters(req.query, { allowCategory: true });
-  const sql = `SELECT * FROM transactions${whereClause} ORDER BY date DESC`;
+  const { page = 1, limit = 10 } = req.query;
 
-  db.query(sql, values, (err, result) => {
+  const offset = (page - 1) * limit;
+
+  const { whereClause, values } = buildFilters(req.query, { allowCategory: true });
+
+  const sql = `
+    SELECT * FROM transactions
+    ${whereClause}
+    ORDER BY date DESC
+    LIMIT ? OFFSET ?
+  `;
+
+  db.query(sql, [...values, Number(limit), Number(offset)], (err, result) => {
     if (err) return res.status(500).send(err);
     res.json(result);
   });
