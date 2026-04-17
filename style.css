@@ -1,0 +1,468 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+.app-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 16px 16px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.top-panel {
+  flex-shrink: 0;
+  background: #f4f6f9;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 13px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.summary-card h3 {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #666;
+}
+
+.summary-card p {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.income-card p {
+  color: #2e7d32;
+}
+
+.expense-card p {
+  color: #c62828;
+}
+
+.balance-card p {
+  color: #1565c0;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.compact-card {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.card h2 {
+  font-size: 18px;
+  color: #222;
+}
+
+.form-grid,
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.comment-group {
+  grid-column: span 2;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+label {
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  width: 100%;
+  height: 36px;
+  padding: 7px 10px;
+  border: 1px solid #d6dbe1;
+  border-radius: 8px;
+  background: #fff;
+  outline: none;
+  transition: 0.2s ease;
+  font-size: 13px;
+}
+
+input:focus,
+select:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.compact-actions {
+  margin-top: 8px;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.btn-primary {
+  background-color: #427a35;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #35662a;
+}
+
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #222;
+}
+
+.btn-secondary:hover {
+  background-color: #d6dae1;
+}
+
+.btn-inline {
+  min-width: 88px;
+}
+
+#submit-btn {
+  min-width: 180px;
+}
+
+#cancel-btn {
+  min-width: 110px;
+}
+
+#form-message {
+  margin-top: 8px;
+  min-height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.error-message {
+  color: crimson;
+}
+
+.success-message {
+  color: #2e7d32;
+}
+
+.transactions-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.transactions-header {
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+
+.transactions-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid #edf0f3;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+thead {
+  background-color: #f3f5f7;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+th,
+td {
+  padding: 10px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e8ebef;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+th {
+  color: #444;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+  min-width: auto;
+  margin-right: 6px;
+}
+
+.btn-edit {
+  background-color: #1565c0;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #0f4fa0;
+}
+
+.btn-delete {
+  background-color: #c62828;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #a61f1f;
+}
+
+.income {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.expense {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.pagination-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+#page-info {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 992px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .summary-grid,
+  .form-grid,
+  .filters-grid,
+  .compact-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .comment-group {
+    grid-column: span 2;
+  }
+
+  .transactions-card {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-grid,
+  .form-grid,
+  .filters-grid,
+  .compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comment-group {
+    grid-column: span 1;
+  }
+
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  .summary-card p {
+    font-size: 22px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #submit-btn,
+  #cancel-btn,
+  .btn-inline {
+    width: 100%;
+  }
+
+  .transactions-card {
+    min-height: 360px;
+  }
+
+.filters-card .form-actions {
+  justify-content: flex-start;
+}
+
+.filters-card .btn-inline {
+  min-width: 90px;
+}
+
+}
+.filters-toggle-section {
+  margin-bottom: 10px;
+}
+
+.filters-toggle-btn {
+  border: none;
+  background: #ffffff;
+  color: #222;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: 0.2s ease;
+}
+
+.filters-toggle-btn:hover {
+  background: #f1f3f5;
+}
+
+.filters-hidden {
+  display: none;
+}
+
+.filters-visible {
+  display: block;
+  margin-top: 10px;
+}
+
+.filters-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.filters-panel.active {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+#toggleFilters {
+    border: 1px solid #333;
+    background: white;
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+#toggleFilters:hover {
+    background: #f3f3f3;
+}
