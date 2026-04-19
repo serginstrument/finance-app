@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recurring Transactions</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell recurring-page">
+ <header class="page-header">
+  <div class="page-header-top">
+    <div>
+      <h1>Recurring Transactions</h1>
+      <p>Manage regular income and expenses</p>
+    </div>
+
+    <div class="nav-actions">
+      <a href="index.html" class="nav-btn">Finance Tracker</a>
+      <a href="categories.html" class="nav-btn">Manage Categories</a>
+    </div>
+  </div>
+</header>
+
+    <section class="card compact-card">
+      <div class="card-title-row">
+        <h2>Add Recurring Transaction</h2>
+      </div>
+
+      <form id="recurring-form">
+        <div class="form-grid recurring-grid">
+          <div class="form-group">
+            <label for="recurring-title">Title</label>
+            <input type="text" id="recurring-title" placeholder="e.g. Rent" />
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-type">Type</label>
+            <select id="recurring-type">
+              <option value="" disabled selected hidden>Type</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-category">Category</label>
+            <select id="recurring-category" disabled>
+              <option value="" disabled selected hidden>Select category</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-subcategory">Subcategory</label>
+            <select id="recurring-subcategory" disabled>
+              <option value="" disabled selected hidden>Select subcategory</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-amount">Amount</label>
+            <input type="number" id="recurring-amount" placeholder="Enter amount" />
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-frequency">Frequency</label>
+            <select id="recurring-frequency">
+              <option value="" disabled selected hidden>Frequency</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Biweekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-start-date">Start Date</label>
+            <input type="date" id="recurring-start-date" />
+          </div>
+
+          <div class="form-group">
+            <label for="recurring-next-date">Next Due Date</label>
+            <input type="date" id="recurring-next-date" />
+          </div>
+
+          <div class="form-group recurring-comment-group">
+            <label for="recurring-comment">Comment</label>
+            <input type="text" id="recurring-comment" placeholder="Optional comment" />
+          </div>
+        </div>
+
+       <div class="form-actions compact-actions">
+  <button id="recurring-submit-btn" type="submit" class="btn btn-primary">
+    Add Recurring
+  </button>
+  <button id="recurring-cancel-btn" type="button" class="btn btn-secondary" style="display:none;">
+    Cancel
+  </button>
+</div>
+
+        <div id="recurring-message"></div>
+      </form>
+    </section>
+
+    <section class="card recurring-list-card">
+      <div class="card-title-row">
+        <h2>Recurring List</h2>
+      </div>
+
+      <div class="table-wrapper recurring-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Subcategory</th>
+              <th>Amount</th>
+              <th>Frequency</th>
+              <th>Start Date</th>
+              <th>Next Due</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recurring-list"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="recurring.js"></script>
+</body>
+</html>

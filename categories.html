@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Categories</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell categories-page">
+<header class="page-header">
+  <div class="page-header-top">
+    <div>
+      <h1>Manage Categories</h1>
+      <p>Add and manage categories and subcategories</p>
+    </div>
+
+    <div class="nav-actions">
+      <a href="index.html" class="nav-btn">Finance Tracker</a>
+      <a href="recurring.html" class="nav-btn">Recurring</a>
+    </div>
+  </div>
+</header>
+
+    <section class="card compact-card">
+      <div class="card-title-row">
+        <h2>Add Category</h2>
+      </div>
+
+      <div class="form-grid categories-grid">
+        <div class="form-group">
+          <label for="new-category-type">Type</label>
+          <select id="new-category-type">
+            <option value="" disabled selected hidden>Type</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="new-category-name">Category name</label>
+          <input type="text" id="new-category-name" placeholder="Enter category name" />
+        </div>
+
+        <div class="form-group category-action-group">
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-primary" onclick="addCategory()">Add Category</button>
+        </div>
+      </div>
+
+      <div id="category-message"></div>
+    </section>
+
+    <section class="card compact-card">
+      <div class="card-title-row">
+        <h2>Add Subcategory</h2>
+      </div>
+
+      <div class="form-grid categories-grid">
+        <div class="form-group">
+          <label for="parent-category">Category</label>
+          <select id="parent-category">
+            <option value="" disabled selected hidden>Select category</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="new-subcategory-name">Subcategory name</label>
+          <input type="text" id="new-subcategory-name" placeholder="Enter subcategory name" />
+        </div>
+
+        <div class="form-group category-action-group">
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-primary" onclick="addSubcategory()">Add Subcategory</button>
+        </div>
+      </div>
+
+      <div id="subcategory-message"></div>
+    </section>
+
+    <section class="card categories-list-card">
+      <div class="categories-columns">
+        <div>
+          <div class="card-title-row">
+            <h2>Categories</h2>
+          </div>
+          <div id="categories-list" class="simple-list"></div>
+        </div>
+
+        <div>
+          <div class="card-title-row">
+            <h2>Subcategories</h2>
+          </div>
+          <div id="subcategories-list" class="simple-list empty-state">
+            Select a category to view subcategories
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script src="categories.js"></script>
+</body>
+</html>

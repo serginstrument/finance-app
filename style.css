@@ -466,3 +466,343 @@ tbody tr:hover {
 #toggleFilters:hover {
     background: #f3f3f3;
 }
+
+.categories-page {
+  max-width: 1200px;
+}
+
+.categories-grid {
+  grid-template-columns: 1fr 1.5fr auto;
+  align-items: end;
+}
+
+.category-action-group .btn {
+  min-width: 160px;
+}
+
+.categories-list-card {
+  flex: unset;
+}
+
+.categories-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.simple-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e6eaef;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.list-item-main {
+  flex: 1;
+  cursor: pointer;
+}
+
+.list-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
+}
+
+.list-item-meta {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+  text-transform: capitalize;
+}
+
+.empty-state {
+  padding: 20px;
+  border: 1px dashed #d6dbe1;
+  border-radius: 10px;
+  color: #777;
+  background: #fafbfc;
+}
+
+#category-message,
+#subcategory-message {
+  margin-top: 10px;
+  min-height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .categories-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .category-action-group .btn {
+    width: 100%;
+  }
+}
+
+.page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: #ffffff;
+  color: #222;
+  border: 1px solid #d6dbe1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  background: #f1f3f5;
+}
+
+@media (max-width: 640px) {
+  .page-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-btn {
+    width: 100%;
+  }
+}
+
+.recurring-page {
+  max-width: 1250px;
+}
+
+.recurring-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.recurring-comment-group {
+  grid-column: span 2;
+}
+
+.recurring-list-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recurring-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid #edf0f3;
+  border-radius: 10px;
+}
+
+.empty-table-cell {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+}
+
+#recurring-message {
+  margin-top: 10px;
+  min-height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 992px) {
+  .recurring-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .recurring-comment-group {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .recurring-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recurring-comment-group {
+    grid-column: span 1;
+  }
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .nav-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+.overdue-card {
+  margin-bottom: 10px;
+}
+
+.overdue-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #c62828;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.empty-table-cell {
+  text-align: center;
+  color: #777;
+  padding: 18px;
+}
+
+.overdue-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: #fff4e5;
+  color: #9a3412;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.overdue-badge-btn:hover {
+  background: #fde7c7;
+}
+
+#overdue-badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+}
+
+.overdue-badge-btn.zero {
+  background: #f3f4f6;
+  color: #777;
+}
+
+.page-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header-text {
+  min-width: 0;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: #ffffff;
+  color: #222;
+  border: 1px solid #d6dbe1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  background: #f1f3f5;
+}
+
+.overdue-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 74px;
+  border: none;
+  background: #fff4e5;
+  color: #9a3412;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.overdue-badge-btn:hover {
+  background: #fde7c7;
+}
+
+.overdue-badge-btn.zero {
+  background: #f3f4f6;
+  color: #777;
+}
+
+#overdue-badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+}
+
+@media (max-width: 640px) {
+  .page-header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
