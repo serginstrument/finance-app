@@ -48,6 +48,45 @@ body {
   font-size: 13px;
 }
 
+.page-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header-text {
+  min-width: 0;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: #ffffff;
+  color: #222;
+  border: 1px solid #d6dbe1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  background: #f1f3f5;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -220,7 +259,11 @@ select:focus {
   min-width: 110px;
 }
 
-#form-message {
+#form-message,
+#recurring-message,
+#category-message,
+#subcategory-message,
+#quick-template-message {
   margin-top: 8px;
   min-height: 20px;
   font-size: 13px;
@@ -235,7 +278,8 @@ select:focus {
   color: #2e7d32;
 }
 
-.transactions-card {
+.transactions-card,
+.recurring-list-card {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -248,12 +292,17 @@ select:focus {
   margin-bottom: 8px;
 }
 
-.transactions-table-wrap {
+.transactions-table-wrap,
+.recurring-table-wrap {
   flex: 1;
   min-height: 0;
   overflow: auto;
   border: 1px solid #edf0f3;
   border-radius: 10px;
+}
+
+.table-wrapper {
+  width: 100%;
 }
 
 table {
@@ -282,6 +331,10 @@ th {
   color: #444;
   font-weight: 700;
   white-space: nowrap;
+}
+
+table tbody tr {
+  transition: all 0.2s ease;
 }
 
 tbody tr:hover {
@@ -317,6 +370,30 @@ tbody tr:hover {
   background-color: #a61f1f;
 }
 
+.btn-toggle {
+  background: #fff4e5;
+  color: #b45309;
+  border: 1px solid #fbbf24;
+}
+
+.btn-toggle:hover {
+  background: #fde68a;
+}
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+}
+
 .income {
   color: #2e7d32;
   font-weight: 700;
@@ -341,76 +418,6 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-@media (max-width: 992px) {
-  body {
-    overflow: auto;
-  }
-
-  .app-shell {
-    height: auto;
-    min-height: 100vh;
-  }
-
-  .summary-grid,
-  .form-grid,
-  .filters-grid,
-  .compact-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .comment-group {
-    grid-column: span 2;
-  }
-
-  .transactions-card {
-    min-height: 420px;
-  }
-}
-
-@media (max-width: 640px) {
-  .summary-grid,
-  .form-grid,
-  .filters-grid,
-  .compact-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .comment-group {
-    grid-column: span 1;
-  }
-
-  .page-header h1 {
-    font-size: 24px;
-  }
-
-  .summary-card p {
-    font-size: 22px;
-  }
-
-  .form-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #submit-btn,
-  #cancel-btn,
-  .btn-inline {
-    width: 100%;
-  }
-
-  .transactions-card {
-    min-height: 360px;
-  }
-
-.filters-card .form-actions {
-  justify-content: flex-start;
-}
-
-.filters-card .btn-inline {
-  min-width: 90px;
-}
-
-}
 .filters-toggle-section {
   margin-bottom: 10px;
 }
@@ -439,32 +446,6 @@ tbody tr:hover {
 .filters-visible {
   display: block;
   margin-top: 10px;
-}
-
-.filters-panel {
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    opacity: 0;
-}
-
-.filters-panel.active {
-    max-height: 200px;
-    opacity: 1;
-    margin-top: 10px;
-}
-
-#toggleFilters {
-    border: 1px solid #333;
-    background: white;
-    border-radius: 20px;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-#toggleFilters:hover {
-    background: #f3f3f3;
 }
 
 .categories-page {
@@ -525,20 +506,268 @@ tbody tr:hover {
   text-transform: capitalize;
 }
 
-.empty-state {
-  padding: 20px;
+.empty-state,
+.empty-table-cell {
+  text-align: center;
+  color: #777;
+  padding: 18px;
   border: 1px dashed #d6dbe1;
   border-radius: 10px;
-  color: #777;
   background: #fafbfc;
 }
 
-#category-message,
-#subcategory-message {
-  margin-top: 10px;
-  min-height: 20px;
+.empty-table-cell {
+  border: none;
+  background: transparent;
+}
+
+.recurring-page {
+  max-width: 1250px;
+}
+
+.recurring-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.recurring-comment-group {
+  grid-column: span 2;
+}
+
+.quick-template-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.quick-add-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quick-add-btn {
+  border: 1px solid #d6dbe1;
+  background: #fff;
+  color: #222;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.quick-add-btn:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+}
+
+.quick-add-preview {
+  margin-top: 12px;
+}
+
+.quick-add-empty {
+  width: 100%;
+}
+
+.quick-template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #d6dbe1;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.quick-template-chip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.quick-template-chip-text strong {
+  font-size: 13px;
+  color: #222;
+}
+
+.quick-template-chip-text span {
+  font-size: 12px;
+  color: #666;
+}
+
+.overdue-card {
+  margin-bottom: 10px;
+}
+
+.overdue-count,
+.due-soon-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.overdue-count {
+  background: #c62828;
+}
+
+.due-soon-count {
+  background: #2e7d32;
+}
+
+.overdue-badge-btn,
+.due-soon-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.overdue-badge-btn {
+  min-width: 96px;
+  background: #fff4e5;
+  color: #9a3412;
+}
+
+.overdue-badge-btn:hover {
+  background: #fde7c7;
+}
+
+.overdue-badge-btn.zero {
+  background: #f3f4f6;
+  color: #777;
+}
+
+.due-soon-badge-btn {
+  min-width: 110px;
+  background: #eaf7ed;
+  color: #1b5e20;
+}
+
+.due-soon-badge-btn:hover {
+  background: #d8efde;
+}
+
+.due-soon-badge-btn.zero {
+  background: #f3f4f6;
+  color: #777;
+}
+
+#overdue-badge-count,
+#due-soon-badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+}
+
+.status-cell-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-overdue {
+  background: #fde8e8;
+  color: #b91c1c;
+}
+
+.status-due-soon {
+  background: #fff7d6;
+  color: #a16207;
+}
+
+.status-upcoming {
+  background: #eaf7ed;
+  color: #1b5e20;
+}
+
+.status-inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.row-status-overdue {
+  background-color: #fff1f1;
+}
+
+.row-status-due-soon {
+  background-color: #fffbea;
+}
+
+.row-status-upcoming {
+  background-color: #f9fafb;
+}
+
+.row-status-inactive {
+  opacity: 0.6;
+}
+
+.row-status-inactive td {
+  color: #9ca3af;
+}
+
+table tbody tr:hover {
+  transform: scale(1.01);
+  background-color: #eef2ff !important;
+}
+
+@media (max-width: 992px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .summary-grid,
+  .form-grid,
+  .filters-grid,
+  .compact-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .comment-group,
+  .recurring-comment-group {
+    grid-column: span 2;
+  }
+
+  .transactions-card {
+    min-height: 420px;
+  }
+
+  .recurring-grid,
+  .quick-template-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -555,247 +784,44 @@ tbody tr:hover {
   }
 }
 
-.page-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  background: #ffffff;
-  color: #222;
-  border: 1px solid #d6dbe1;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  transition: 0.2s ease;
-  white-space: nowrap;
-}
-
-.nav-btn:hover {
-  background: #f1f3f5;
-}
-
 @media (max-width: 640px) {
-  .page-header-top {
+  .summary-grid,
+  .form-grid,
+  .filters-grid,
+  .compact-grid,
+  .recurring-grid,
+  .quick-template-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comment-group,
+  .recurring-comment-group {
+    grid-column: span 1;
+  }
+
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  .summary-card p {
+    font-size: 22px;
+  }
+
+  .form-actions {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .nav-btn {
+  #submit-btn,
+  #cancel-btn,
+  .btn-inline {
     width: 100%;
   }
-}
 
-.recurring-page {
-  max-width: 1250px;
-}
-
-.recurring-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.recurring-comment-group {
-  grid-column: span 2;
-}
-
-.recurring-list-card {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.recurring-table-wrap {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  border: 1px solid #edf0f3;
-  border-radius: 10px;
-}
-
-.empty-table-cell {
-  text-align: center;
-  color: #777;
-  padding: 20px;
-}
-
-#recurring-message {
-  margin-top: 10px;
-  min-height: 20px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-@media (max-width: 992px) {
-  .recurring-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .transactions-card {
+    min-height: 360px;
   }
 
-  .recurring-comment-group {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 640px) {
-  .recurring-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .recurring-comment-group {
-    grid-column: span 1;
-  }
-}
-
-.nav-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 640px) {
-  .nav-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-}
-
-.overdue-card {
-  margin-bottom: 10px;
-}
-
-.overdue-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: #c62828;
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.empty-table-cell {
-  text-align: center;
-  color: #777;
-  padding: 18px;
-}
-
-.overdue-badge-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  background: #fff4e5;
-  color: #9a3412;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
-  white-space: nowrap;
-}
-
-.overdue-badge-btn:hover {
-  background: #fde7c7;
-}
-
-#overdue-badge-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-}
-
-.overdue-badge-btn.zero {
-  background: #f3f4f6;
-  color: #777;
-}
-
-.page-header-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.page-header-text {
-  min-width: 0;
-}
-
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
-.nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  background: #ffffff;
-  color: #222;
-  border: 1px solid #d6dbe1;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  transition: 0.2s ease;
-  white-space: nowrap;
-}
-
-.nav-btn:hover {
-  background: #f1f3f5;
-}
-
-.overdue-badge-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-width: 74px;
-  border: none;
-  background: #fff4e5;
-  color: #9a3412;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
-  white-space: nowrap;
-}
-
-.overdue-badge-btn:hover {
-  background: #fde7c7;
-}
-
-.overdue-badge-btn.zero {
-  background: #f3f4f6;
-  color: #777;
-}
-
-#overdue-badge-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-}
-
-@media (max-width: 640px) {
   .page-header-top {
     flex-direction: column;
     align-items: stretch;
@@ -804,5 +830,56 @@ tbody tr:hover {
   .nav-actions {
     width: 100%;
     justify-content: flex-start;
+    flex-direction: column;
   }
+
+  .nav-btn,
+  .overdue-badge-btn,
+  .due-soon-badge-btn {
+    width: 100%;
+  }
+}
+.recurring-filters-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 992px) {
+  .recurring-filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .recurring-filters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.list-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #f1f3f5;
+  color: #444;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.btn-excel {
+  background: #217346;
+  color: #fff;
+  border: 1px solid #1b5e39;
+}
+
+.btn-excel:hover {
+  background: #1b5e39;
+  color: #fff;
+}
+
+.btn-excel:active {
+  background: #154d2e;
 }

@@ -8,19 +8,19 @@
 </head>
 <body>
   <div class="app-shell recurring-page">
- <header class="page-header">
-  <div class="page-header-top">
-    <div>
-      <h1>Recurring Transactions</h1>
-      <p>Manage regular income and expenses</p>
-    </div>
+    <header class="page-header">
+      <div class="page-header-top">
+        <div>
+          <h1>Recurring Transactions</h1>
+          <p>Manage regular income and expenses</p>
+        </div>
 
-    <div class="nav-actions">
-      <a href="index.html" class="nav-btn">Finance Tracker</a>
-      <a href="categories.html" class="nav-btn">Manage Categories</a>
-    </div>
-  </div>
-</header>
+        <div class="nav-actions">
+          <a href="index.html" class="nav-btn">Finance Tracker</a>
+          <a href="categories.html" class="nav-btn">Manage Categories</a>
+        </div>
+      </div>
+    </header>
 
     <section class="card compact-card">
       <div class="card-title-row">
@@ -82,50 +82,123 @@
             <input type="date" id="recurring-next-date" />
           </div>
 
+          <div class="form-group">
+            <label for="reminder_days">Remind Before (Days)</label>
+            <input type="number" id="reminder_days" min="0" value="3" />
+          </div>
+
           <div class="form-group recurring-comment-group">
             <label for="recurring-comment">Comment</label>
             <input type="text" id="recurring-comment" placeholder="Optional comment" />
           </div>
         </div>
 
-       <div class="form-actions compact-actions">
-  <button id="recurring-submit-btn" type="submit" class="btn btn-primary">
-    Add Recurring
-  </button>
-  <button id="recurring-cancel-btn" type="button" class="btn btn-secondary" style="display:none;">
-    Cancel
-  </button>
-</div>
+        <div class="form-actions compact-actions">
+          <button id="recurring-submit-btn" type="submit" class="btn btn-primary">
+            Add Recurring
+          </button>
+          <button id="recurring-cancel-btn" type="button" class="btn btn-secondary" style="display:none;">
+            Cancel
+          </button>
+        </div>
+
+
 
         <div id="recurring-message"></div>
       </form>
     </section>
 
+<section class="card compact-card">
+  <div class="card-title-row">
+    <h2>Recurring Filters</h2>
+  </div>
+
+  <div class="form-grid recurring-filters-grid">
+    <div class="form-group">
+      <label for="recurring-search-title">Search by title</label>
+      <input type="text" id="recurring-search-title" placeholder="Search title" />
+    </div>
+
+    <div class="form-group">
+      <label for="recurring-filter-type">Type</label>
+      <select id="recurring-filter-type">
+        <option value="">All</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="recurring-filter-category">Category</label>
+      <select id="recurring-filter-category">
+        <option value="">All categories</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="recurring-filter-status">Status</label>
+      <select id="recurring-filter-status">
+        <option value="">All</option>
+        <option value="Overdue">Overdue</option>
+        <option value="Due Soon">Due Soon</option>
+        <option value="Upcoming">Upcoming</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-actions compact-actions">
+    <button id="recurring-apply-filters-btn" type="button" class="btn btn-primary btn-inline">
+      Apply
+    </button>
+
+    <button id="recurring-reset-filters-btn" type="button" class="btn btn-secondary btn-inline">
+      Reset
+    </button>
+  </div>
+</section>
+
+
     <section class="card recurring-list-card">
       <div class="card-title-row">
-        <h2>Recurring List</h2>
-      </div>
+  <h2>Recurring List</h2>
+  <span id="recurring-total-count" class="list-count-badge">0</span>
+</div>
 
       <div class="table-wrapper recurring-table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Category</th>
-              <th>Subcategory</th>
-              <th>Amount</th>
-              <th>Frequency</th>
-              <th>Start Date</th>
-              <th>Next Due</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+  <tr>
+    <th>Title</th>
+    <th>Type</th>
+    <th>Category</th>
+    <th>Subcategory</th>
+    <th>Amount</th>
+    <th>Frequency</th>
+    <th>Start Date</th>
+    <th>Next Due</th>
+    <th>Status</th>
+    <th>Actions</th>
+  </tr>
+</thead>
           <tbody id="recurring-list"></tbody>
         </table>
+        
       </div>
+             <div id="recurring-pagination-bar" class="pagination-bar">
+  <button id="recurring-prev-btn" type="button" class="btn btn-secondary btn-inline">
+    Prev
+  </button>
+
+  <span id="recurring-page-info">Page 1</span>
+
+  <button id="recurring-next-btn" type="button" class="btn btn-secondary btn-inline">
+    Next
+  </button>
+</div>
     </section>
+
+
   </div>
 
   <script src="recurring.js"></script>

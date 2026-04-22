@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transactions - Finance Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="top-panel">
+      <header class="page-header">
+        <div class="page-header-top">
+          <div class="page-header-text">
+            <h1>Transactions</h1>
+            <p>Add, filter, edit and manage your transactions</p>
+          </div>
+
+          <div class="nav-actions">
+            <a href="index.html" class="nav-btn">Dashboard</a>
+            <a href="categories.html" class="nav-btn">Manage Categories</a>
+            <a href="recurring.html" class="nav-btn">Recurring</a>
+          </div>
+        </div>
+      </header>
+
+      <section class="card compact-card">
+  <div class="card-title-row">
+    <h2>Quick Add</h2>
+  </div>
+
+  <div id="quick-add-list" class="quick-add-list"></div>
+</section>
+
+<section class="card compact-card">
+  <div class="card-title-row">
+    <button id="quick-manage-toggle-btn" type="button" class="filters-toggle-btn">
+      Manage Quick Add Buttons ▼
+    </button>
+  </div>
+
+  <div id="quick-manage-panel" class="filters-hidden">
+    <form id="quick-template-form">
+      <div class="form-grid quick-template-grid">
+        <div class="form-group">
+          <label for="quick-title">Button Name</label>
+          <input type="text" id="quick-title" placeholder="e.g. Gas $50" maxlength="40" />
+        </div>
+
+        <div class="form-group">
+          <label for="quick-type">Type</label>
+          <select id="quick-type">
+            <option value="" disabled selected hidden>Type</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quick-category">Category</label>
+          <select id="quick-category" disabled>
+            <option value="" disabled selected hidden>Select category</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quick-subcategory">Subcategory</label>
+          <select id="quick-subcategory" disabled>
+            <option value="" disabled selected hidden>Select subcategory</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quick-amount">Amount (optional)</label>
+          <input type="number" id="quick-amount" placeholder="Leave blank if variable" />
+        </div>
+
+        <div class="form-group">
+          <label for="quick-comment">Comment (optional)</label>
+          <input type="text" id="quick-comment" placeholder="Optional comment" />
+        </div>
+      </div>
+
+      <div class="form-actions compact-actions">
+        <button id="quick-template-submit-btn" type="submit" class="btn btn-primary">
+          Add Quick Button
+        </button>
+      </div>
+
+      <div id="quick-template-message"></div>
+    </form>
+
+    <div id="quick-template-preview" class="quick-add-list quick-add-preview"></div>
+  </div>
+</section>
+
+      <section class="card compact-card">
+        <div class="card-title-row">
+          <h2>Add Transaction</h2>
+        </div>
+
+        <form id="transaction-form">
+          <div class="form-grid compact-grid">
+            <div class="form-group">
+              <label for="date">Date</label>
+              <input type="date" id="date" />
+            </div>
+
+            <div class="form-group">
+              <label for="amount">Amount</label>
+              <input type="number" id="amount" placeholder="Enter amount" />
+            </div>
+
+            <div class="form-group">
+              <label for="type">Type</label>
+              <select id="type">
+                <option value="" disabled hidden selected>Type</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category" disabled>
+                <option value="" disabled hidden selected>Select category</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="subcategory">Subcategory</label>
+              <select id="subcategory" disabled>
+                <option value="" disabled hidden selected>Select subcategory</option>
+              </select>
+            </div>
+
+            <div class="form-group comment-group">
+              <label for="comment">Comment</label>
+              <input type="text" id="comment" placeholder="Add comment" />
+            </div>
+          </div>
+
+          <div class="form-actions compact-actions">
+            <button id="submit-btn" type="submit" class="btn btn-primary">
+              Add Transaction
+            </button>
+
+            <button id="cancel-btn" type="button" class="btn btn-secondary" style="display: none;">
+              Cancel
+            </button>
+          </div>
+
+          <div id="form-message"></div>
+        </form>
+      </section>
+
+      <section class="filters-toggle-section">
+        <button id="filters-toggle-btn" type="button" class="filters-toggle-btn">
+          Filters
+        </button>
+
+        <div id="filters-panel" class="card compact-card filters-card filters-hidden">
+          <div class="card-title-row">
+            <h2>Filters</h2>
+          </div>
+
+          <div class="filters-grid">
+            <div class="form-group">
+              <label for="filter-from">From</label>
+              <input type="date" id="filter-from" />
+            </div>
+
+            <div class="form-group">
+              <label for="filter-to">To</label>
+              <input type="date" id="filter-to" />
+            </div>
+
+            <div class="form-group">
+              <label for="filter-type">Type</label>
+              <select id="filter-type">
+                <option value="">All types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filter-category">Category</label>
+              <select id="filter-category" disabled>
+                <option value="">All categories</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filter-subcategory">Subcategory</label>
+              <select id="filter-subcategory" disabled>
+                <option value="">All subcategories</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="search-comment">Search comment</label>
+              <input type="text" id="search-comment" placeholder="Search in comments" />
+            </div>
+          </div>
+
+          <div class="form-actions compact-actions">
+            <button id="apply-filters-btn" type="button" class="btn btn-primary btn-inline">
+              Apply
+            </button>
+
+            <button id="clear-filters-btn" type="button" class="btn btn-secondary btn-inline">
+              Reset
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card transactions-card">
+<div class="transactions-header">
+  <div class="card-title-row">
+    <h2>Transactions</h2>
+    <span id="transactions-total-count" class="list-count-badge">0</span>
+  </div>
+
+<button id="export-transactions-btn" type="button" class="btn btn-excel btn-inline">
+  Export Excel
+</button>
+</div>
+
+      <div class="table-wrapper transactions-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Subcategory</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Comment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body">
+            <tr>
+              <td colspan="8" class="empty-table-cell">No transactions yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="transactions-pagination-bar" class="pagination-bar">
+        <button id="prev-btn" type="button" class="btn btn-secondary btn-inline">
+          Prev
+        </button>
+
+        <span id="page-info">Page 1</span>
+
+        <button id="next-btn" type="button" class="btn btn-secondary btn-inline">
+          Next
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script src="transactions.js"></script>
+</body>
+</html>
