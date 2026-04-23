@@ -8,19 +8,23 @@
 </head>
 <body>
   <div class="app-shell recurring-page">
-    <header class="page-header">
-      <div class="page-header-top">
-        <div>
-          <h1>Recurring Transactions</h1>
-          <p>Manage regular income and expenses</p>
-        </div>
+    <div class="top-panel">
+      <header class="page-header">
+        <div class="page-header-top">
+          <div class="page-header-text">
+            <a href="index.html" class="page-brand">Finance Tracker</a>
+            <h1>Recurring Transactions</h1>
+            <p>Manage regular income and expenses</p>
+          </div>
 
-        <div class="nav-actions">
-          <a href="index.html" class="nav-btn">Finance Tracker</a>
-          <a href="categories.html" class="nav-btn">Manage Categories</a>
+          <div class="nav-actions">
+            <a href="transactions.html" class="nav-btn">Transactions</a>
+            <a href="categories.html" class="nav-btn">Manage Categories</a>
+            <a href="recurring.html" class="nav-btn nav-btn-active" aria-current="page">Recurring</a>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </div>
 
     <section class="card compact-card">
       <div class="card-title-row">
@@ -185,7 +189,7 @@
         </table>
         
       </div>
-             <div id="recurring-pagination-bar" class="pagination-bar">
+             <div id="recurring-pagination-bar" class="pagination-bar" style="display: none;">
   <button id="recurring-prev-btn" type="button" class="btn btn-secondary btn-inline">
     Prev
   </button>

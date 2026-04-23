@@ -2,6 +2,8 @@ let editingId = null;
 let selectedSubcategoryId = null;
 let currentPage = 1;
 const limit = 10;
+let totalItems = 0;
+let totalPages = 1;
 let hasNextPage = false;
 let quickManageLoaded = false;
 
@@ -330,6 +332,8 @@ function renderQuickAddButtons(templates) {
     btn.addEventListener('click', async () => { await applyQuickTemplate(template); });
     container.appendChild(btn);
   });
+    container.classList.remove('quick-add-loading');
+  container.classList.add('quick-add-ready');
 }
 
 async function applyQuickTemplate(template) {
@@ -518,25 +522,34 @@ async function loadTransactions() {
 
     const finalQuery = params.toString();
     const res = await fetch(finalQuery ? `/transactions?${finalQuery}` : '/transactions');
-    const data = await res.json();
-    hasNextPage = data.length === limit;
+    const result = await res.json();
+    const items = result.items || [];
+    totalItems = Number(result.total || 0);
+    hasNextPage = Boolean(result.hasNextPage);
+    totalPages = Math.max(1, Math.ceil(totalItems / limit));
+
+    if (!items.length && totalItems > 0 && currentPage > 1) {
+      currentPage--;
+      await loadTransactions();
+      return;
+    }
 
     const tbody = document.getElementById('transactions-body');
     tbody.innerHTML = '';
 
-    if (!data.length) {
+    if (!items.length) {
   tbody.innerHTML = `
     <tr>
       <td colspan="8" class="empty-table-cell">No transactions found</td>
     </tr>
   `;
   hasNextPage = false;
-  currentPage = 1;
-  updatePageInfo(0);
+  totalPages = 1;
+  updatePageInfo(totalItems);
   return;
 }
 
-    data.forEach((item, index) => {
+    items.forEach((item, index) => {
       const tr = document.createElement('tr');
       const typeClass = item.type === 'income' ? 'income' : 'expense';
       const rowNumber = (currentPage - 1) * limit + index + 1;
@@ -574,25 +587,24 @@ async function loadTransactions() {
       deleteBtn.addEventListener('click', () => deleteTransaction(item.id));
     });
 
-    updatePageInfo(data.length);
+    updatePageInfo(totalItems);
   } catch (error) {
     console.error('Transactions error:', error);
   }
 }
 
 function updatePaginationButtons() {
-  document.getElementById('prev-btn').disabled = currentPage === 1;
-  document.getElementById('next-btn').disabled = !hasNextPage;
+  document.getElementById('prev-btn').disabled = currentPage <= 1;
+ document.getElementById('next-btn').disabled = currentPage >= totalPages;
 }
 
 let searchTimeout = null;
+
 function handleSearch() {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     currentPage = 1;
-    updatePageInfo();
     loadTransactions();
-    loadSummary();
   }, 300);
 }
 
@@ -627,7 +639,6 @@ function getFiltersQuery() {
 async function applyFilters() {
   currentPage = 1;
   updatePageInfo();
-  await loadSummary();
   await loadTransactions();
 }
 
@@ -645,7 +656,6 @@ async function clearFilters() {
 
   currentPage = 1;
   updatePageInfo();
-  await loadSummary();
   await loadTransactions();
 }
 
@@ -772,8 +782,13 @@ function validateTransactionForm() {
 }
 
 async function addTransaction() {
+  const submitBtn = document.getElementById('submit-btn');
+
   try {
     if (!validateTransactionForm()) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = editingId ? 'Updating...' : 'Adding...';
 
     const date = document.getElementById('date').value || new Date().toISOString().slice(0, 10);
     const amount = document.getElementById('amount').value;
@@ -814,11 +829,14 @@ async function addTransaction() {
     await resetForm();
     showSuccessMessage(successMessage);
 
-    await loadSummary();
     await loadTransactions();
+
   } catch (error) {
     console.error('Add/update error:', error);
     showErrorMessage('Error saving transaction');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Add Transaction';
   }
 }
 
@@ -836,7 +854,6 @@ async function deleteTransaction(id) {
       await resetForm();
     }
 
-    await loadSummary();
     await loadTransactions();
     showSuccessMessage('Transaction deleted');
   } catch (error) {
@@ -851,11 +868,12 @@ function updatePageInfo(totalItems = 0) {
   const totalCount = document.getElementById('transactions-total-count');
 
   if (pageInfo) {
-    pageInfo.innerText = `Page ${currentPage}`;
+    pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
   }
 
   if (paginationBar) {
-    paginationBar.style.display = totalItems > limit ? 'flex' : 'none';
+    const shouldShowPagination = totalItems > limit;
+    paginationBar.style.display = shouldShowPagination ? 'flex' : 'none';
   }
 
   if (totalCount) {
@@ -866,7 +884,7 @@ function updatePageInfo(totalItems = 0) {
 }
 
 function nextPage() {
-  if (!hasNextPage) return;
+  if (currentPage >= totalPages) return;
   currentPage++;
   loadTransactions();
 }
@@ -917,23 +935,6 @@ function toggleFilters() {
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
-}
-
-async function loadSummary() {
-  try {
-    const res = await fetch('/summary');
-    const data = await res.json();
-
-    const totalIncomeEl = document.getElementById('total-income');
-    const totalExpenseEl = document.getElementById('total-expense');
-    const balanceEl = document.getElementById('balance');
-
-    if (totalIncomeEl) totalIncomeEl.innerText = `$${Number(data.total_income || 0).toFixed(2)}`;
-    if (totalExpenseEl) totalExpenseEl.innerText = `$${Number(data.total_expense || 0).toFixed(2)}`;
-    if (balanceEl) balanceEl.innerText = `$${Number(data.balance || 0).toFixed(2)}`;
-  } catch (error) {
-    console.error('Summary error:', error);
-  }
 }
 
 async function exportTransactions() {
@@ -988,8 +989,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     await resetForm();
     clearFormMessage();
     updatePageInfo();
-    await loadQuickAddTemplates();
     await loadTransactions();
+    await loadQuickAddTemplates();
   } catch (error) {
     console.error('Init error:', error);
   }

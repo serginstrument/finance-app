@@ -12,7 +12,8 @@
       <header class="page-header">
         <div class="page-header-top">
           <div class="page-header-text">
-            <h1>Finance Tracker</h1>
+            <a href="index.html" class="page-brand page-brand-active" aria-current="page">Finance Tracker</a>
+            <h1>Dashboard</h1>
             <p>Track your income and expenses easily</p>
           </div>
 
@@ -66,6 +67,17 @@
             </tbody>
           </table>
         </div>
+
+        <div class="form-actions compact-actions">
+          <a
+            id="overdue-show-all"
+            href="recurring.html?status=overdue"
+            class="btn btn-secondary btn-inline"
+            style="display: none;"
+          >
+            Show all overdue
+          </a>
+        </div>
       </section>
 
       <section class="card compact-card due-soon-card">
@@ -94,6 +106,17 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="form-actions compact-actions">
+          <a
+            id="due-soon-show-all"
+            href="recurring.html?status=due-soon"
+            class="btn btn-secondary btn-inline"
+            style="display: none;"
+          >
+            Show all due soon
+          </a>
         </div>
       </section>
     </div>

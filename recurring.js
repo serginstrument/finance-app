@@ -2,6 +2,8 @@ let editingRecurringId = null;
 
 let recurringCurrentPage = 1;
 const recurringLimit = 10;
+let recurringTotalItems = 0;
+let recurringTotalPages = 1;
 let recurringHasNextPage = false;
 
 const recurringForm = document.getElementById('recurring-form');
@@ -41,11 +43,24 @@ if (recurringForm) recurringForm.addEventListener('submit', async e => { e.preve
 if (recurringTypeEl) recurringTypeEl.addEventListener('change', handleRecurringTypeChange);
 if (recurringCategoryEl) recurringCategoryEl.addEventListener('change', handleRecurringCategoryChange);
 
+function applyRecurringStatusFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const status = (params.get('status') || '').toLowerCase();
+
+  if (!recurringFilterStatusEl || !status) return;
+
+  if (status === 'overdue') {
+    recurringFilterStatusEl.value = 'Overdue';
+  } else if (status === 'due-soon') {
+    recurringFilterStatusEl.value = 'Due Soon';
+  }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   setTodayDates();
   await loadRecurringFilterCategories();
+  applyRecurringStatusFromQuery();
   await loadRecurringTransactions();
-  
 });
 
 function setTodayDates() {
@@ -268,63 +283,49 @@ function getPillClass(status) {
 
 async function loadRecurringTransactions() {
   try {
-    const res = await fetch('/recurring-transactions');
-    const data = await res.json();
+    const params = new URLSearchParams();
+    const searchValue = recurringSearchTitleEl?.value.trim() || '';
+    const typeValue = recurringFilterTypeEl?.value || '';
+    const categoryValue = recurringFilterCategoryEl?.value || '';
+    const statusValue = recurringFilterStatusEl?.value || '';
+
+    if (searchValue) params.append('title', searchValue);
+    if (typeValue) params.append('type', typeValue);
+    if (categoryValue) params.append('category', categoryValue);
+    if (statusValue) params.append('status', statusValue);
+    params.append('page', recurringCurrentPage);
+    params.append('limit', recurringLimit);
+
+    const res = await fetch(`/recurring-transactions?${params.toString()}`);
+    const result = await res.json();
+    const items = result.items || [];
+
+    recurringTotalItems = Number(result.total || 0);
+    recurringHasNextPage = Boolean(result.hasNextPage);
+    recurringTotalPages = Math.max(1, Math.ceil(recurringTotalItems / recurringLimit));
+
+    if (!items.length && recurringTotalItems > 0 && recurringCurrentPage > 1) {
+      recurringCurrentPage--;
+      await loadRecurringTransactions();
+      return;
+    }
 
     const tbody = document.getElementById('recurring-list');
     tbody.innerHTML = '';
 
-
-const searchValue = recurringSearchTitleEl?.value.trim().toLowerCase() || '';
-const typeValue = recurringFilterTypeEl?.value || '';
-const categoryValue = recurringFilterCategoryEl?.value || '';
-const statusValue = recurringFilterStatusEl?.value || '';
-
-const filteredData = data.filter(item => {
-  const status = getRecurringStatus(item);
-
-  const matchesTitle = !searchValue ||
-    String(item.title || '').toLowerCase().includes(searchValue);
-
-  const matchesType = !typeValue || item.type === typeValue;
-  const matchesCategory = !categoryValue || item.category === categoryValue;
-  const matchesStatus = !statusValue || status === statusValue;
-
-  return matchesTitle && matchesType && matchesCategory && matchesStatus;
-});
-
-if (!filteredData.length) {
+    if (!items.length) {
   tbody.innerHTML = `
     <tr>
       <td colspan="10" class="empty-table-cell">No recurring transactions found</td>
     </tr>
   `;
   recurringHasNextPage = false;
-  recurringCurrentPage = 1;
-  updateRecurringPagination(0);
+  recurringTotalPages = 1;
+  updateRecurringPagination(recurringTotalItems);
   return;
 }
 
-    const sortedData = [...filteredData].sort((a, b) => {
-      const statusA = getRecurringStatus(a);
-      const statusB = getRecurringStatus(b);
-      const order = { Overdue: 1, 'Due Soon': 2, Upcoming: 3, Inactive: 4 };
-      const statusDiff = order[statusA] - order[statusB];
-      if (statusDiff !== 0) return statusDiff;
-
-      const dateA = new Date(a.next_due_date || '9999-12-31');
-      const dateB = new Date(b.next_due_date || '9999-12-31');
-      return dateA - dateB;
-    });
-
-    const startIndex = (recurringCurrentPage - 1) * recurringLimit;
-const endIndex = startIndex + recurringLimit;
-const pagedData = sortedData.slice(startIndex, endIndex);
-
-recurringHasNextPage = endIndex < sortedData.length;
-updateRecurringPagination(sortedData.length);
-
-    pagedData.forEach(item => {
+    items.forEach(item => {
       const tr = document.createElement('tr');
       const status = getRecurringStatus(item);
       const rowClass = getStatusClass(status);
@@ -367,6 +368,8 @@ updateRecurringPagination(sortedData.length);
 
       tbody.appendChild(tr);
     });
+
+    updateRecurringPagination(recurringTotalItems);
   } catch (error) {
     console.error('Load recurring transactions error:', error);
   }
@@ -397,7 +400,6 @@ async function deleteRecurring(id) {
       throw new Error(text || 'Error deleting recurring transaction');
     }
     showRecurringMessage('Recurring transaction deleted', 'success');
-    recurringCurrentPage = 1;
     await loadRecurringTransactions();
   } catch (error) {
     console.error('Delete recurring error:', error);
@@ -463,15 +465,15 @@ function updateRecurringPagination(totalItems = 0) {
   const totalCount = document.getElementById('recurring-total-count');
 
   if (pageInfo) {
-    pageInfo.innerText = `Page ${recurringCurrentPage}`;
+    pageInfo.innerText = `Page ${recurringCurrentPage} of ${recurringTotalPages}`;
   }
 
   if (prevBtn) {
-    prevBtn.disabled = recurringCurrentPage === 1;
+    prevBtn.disabled = recurringCurrentPage <= 1;
   }
 
   if (nextBtn) {
-    nextBtn.disabled = !recurringHasNextPage;
+    nextBtn.disabled = recurringCurrentPage >= recurringTotalPages || !recurringHasNextPage;
   }
 
   if (paginationBar) {
@@ -484,7 +486,7 @@ function updateRecurringPagination(totalItems = 0) {
 }
 
 function recurringNextPage() {
-  if (!recurringHasNextPage) return;
+  if (recurringCurrentPage >= recurringTotalPages) return;
   recurringCurrentPage++;
   loadRecurringTransactions();
 }
@@ -527,4 +529,3 @@ function resetRecurringFilters() {
   recurringCurrentPage = 1;
   loadRecurringTransactions();
 }
-

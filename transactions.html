@@ -12,12 +12,13 @@
       <header class="page-header">
         <div class="page-header-top">
           <div class="page-header-text">
+            <a href="index.html" class="page-brand">Finance Tracker</a>
             <h1>Transactions</h1>
             <p>Add, filter, edit and manage your transactions</p>
           </div>
 
           <div class="nav-actions">
-            <a href="index.html" class="nav-btn">Dashboard</a>
+            <a href="transactions.html" class="nav-btn nav-btn-active" aria-current="page">Transactions</a>
             <a href="categories.html" class="nav-btn">Manage Categories</a>
             <a href="recurring.html" class="nav-btn">Recurring</a>
           </div>
@@ -29,7 +30,7 @@
     <h2>Quick Add</h2>
   </div>
 
-  <div id="quick-add-list" class="quick-add-list"></div>
+ <div id="quick-add-list" class="quick-add-list quick-add-loading"></div>
 </section>
 
 <section class="card compact-card">
@@ -243,15 +244,15 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="transactions-body">
-            <tr>
-              <td colspan="8" class="empty-table-cell">No transactions yet</td>
-            </tr>
-          </tbody>
+<tbody id="transactions-body">
+  <tr class="skeleton-row">
+    <td colspan="8">Loading...</td>
+  </tr>
+</tbody>
         </table>
       </div>
 
-      <div id="transactions-pagination-bar" class="pagination-bar">
+      <div id="transactions-pagination-bar" class="pagination-bar" style="display: none;">
         <button id="prev-btn" type="button" class="btn btn-secondary btn-inline">
           Prev
         </button>

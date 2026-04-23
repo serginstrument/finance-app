@@ -2,6 +2,9 @@ const overdueBadgeBtn = document.getElementById('overdue-badge-btn');
 const overdueBadgeCountEl = document.getElementById('overdue-badge-count');
 const dueSoonBadgeBtn = document.getElementById('due-soon-badge-btn');
 const dueSoonBadgeCountEl = document.getElementById('due-soon-badge-count');
+const overdueShowAllEl = document.getElementById('overdue-show-all');
+const dueSoonShowAllEl = document.getElementById('due-soon-show-all');
+const dashboardRecurringPreviewLimit = 5;
 
 if (overdueBadgeBtn) {
   overdueBadgeBtn.addEventListener('click', () => {
@@ -38,6 +41,7 @@ async function loadOverduePayments() {
   try {
     const res = await fetch('/recurring-transactions/overdue');
     const data = await res.json();
+    const previewItems = data.slice(0, dashboardRecurringPreviewLimit);
 
     const tbody = document.getElementById('overdue-list');
     const countEl = document.getElementById('overdue-count');
@@ -45,6 +49,9 @@ async function loadOverduePayments() {
     if (!tbody || !countEl) return;
 
     countEl.innerText = data.length;
+    if (overdueShowAllEl) {
+      overdueShowAllEl.style.display = data.length > dashboardRecurringPreviewLimit ? 'inline-flex' : 'none';
+    }
 
     if (overdueBadgeCountEl) {
       overdueBadgeCountEl.innerText = data.length;
@@ -66,7 +73,7 @@ async function loadOverduePayments() {
       return;
     }
 
-    data.forEach(item => {
+    previewItems.forEach(item => {
       const tr = document.createElement('tr');
       const daysOverdue = getDaysOverdue(item.next_due_date);
 
@@ -99,6 +106,7 @@ async function loadDueSoonPayments() {
   try {
     const res = await fetch('/recurring-transactions/due-soon');
     const data = await res.json();
+    const previewItems = data.slice(0, dashboardRecurringPreviewLimit);
 
     const tbody = document.getElementById('due-soon-list');
     const countEl = document.getElementById('due-soon-count');
@@ -106,6 +114,9 @@ async function loadDueSoonPayments() {
     if (!tbody || !countEl) return;
 
     countEl.innerText = data.length;
+    if (dueSoonShowAllEl) {
+      dueSoonShowAllEl.style.display = data.length > dashboardRecurringPreviewLimit ? 'inline-flex' : 'none';
+    }
 
     if (dueSoonBadgeCountEl) {
       dueSoonBadgeCountEl.innerText = data.length;
@@ -127,7 +138,7 @@ async function loadDueSoonPayments() {
       return;
     }
 
-    data.forEach(item => {
+    previewItems.forEach(item => {
       const tr = document.createElement('tr');
 
       tr.innerHTML = `

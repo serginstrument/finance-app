@@ -8,19 +8,23 @@
 </head>
 <body>
   <div class="app-shell categories-page">
-<header class="page-header">
-  <div class="page-header-top">
-    <div>
-      <h1>Manage Categories</h1>
-      <p>Add and manage categories and subcategories</p>
-    </div>
+    <div class="top-panel">
+      <header class="page-header">
+        <div class="page-header-top">
+          <div class="page-header-text">
+            <a href="index.html" class="page-brand">Finance Tracker</a>
+            <h1>Manage Categories</h1>
+            <p>Add and manage categories and subcategories</p>
+          </div>
 
-    <div class="nav-actions">
-      <a href="index.html" class="nav-btn">Finance Tracker</a>
-      <a href="recurring.html" class="nav-btn">Recurring</a>
+          <div class="nav-actions">
+            <a href="transactions.html" class="nav-btn">Transactions</a>
+            <a href="categories.html" class="nav-btn nav-btn-active" aria-current="page">Manage Categories</a>
+            <a href="recurring.html" class="nav-btn">Recurring</a>
+          </div>
+        </div>
+      </header>
     </div>
-  </div>
-</header>
 
     <section class="card compact-card">
       <div class="card-title-row">
@@ -89,7 +93,7 @@
 
         <div>
           <div class="card-title-row">
-            <h2>Subcategories</h2>
+            <h2 id="subcategories-heading">Subcategories</h2>
           </div>
           <div id="subcategories-list" class="simple-list empty-state">
             Select a category to view subcategories

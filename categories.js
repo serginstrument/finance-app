@@ -1,4 +1,5 @@
 let selectedCategoryId = null;
+let selectedCategoryName = '';
 
 const addCategoryBtn = document.getElementById('add-category-btn');
 const addSubcategoryBtn = document.getElementById('add-subcategory-btn');
@@ -12,6 +13,7 @@ if (addSubcategoryBtn) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
+  updateSubcategoriesHeading();
   await loadCategoriesForPage();
 });
 
@@ -51,6 +53,9 @@ function renderCategories(categories) {
   categories.forEach(category => {
     const item = document.createElement('div');
     item.className = 'list-item';
+    if (String(selectedCategoryId) === String(category.id)) {
+      item.classList.add('list-item-selected');
+    }
 
     item.innerHTML = `
       <div class="list-item-main">
@@ -77,6 +82,9 @@ function renderCategories(categories) {
 
 async function selectCategory(categoryId, categoryName) {
   selectedCategoryId = categoryId;
+  selectedCategoryName = categoryName;
+  updateSubcategoriesHeading(categoryName);
+  await loadCategoriesForPage();
 
   try {
     const res = await fetch(`/subcategories?category_id=${categoryId}`);
@@ -91,6 +99,7 @@ async function selectCategory(categoryId, categoryName) {
 function renderSubcategories(subcategories, categoryName) {
   const container = document.getElementById('subcategories-list');
   container.innerHTML = '';
+  updateSubcategoriesHeading(categoryName);
 
   if (!subcategories.length) {
     container.innerHTML = `<div class="empty-state">No subcategories in ${escapeHtml(categoryName)}</div>`;
@@ -187,10 +196,7 @@ async function addSubcategory() {
     await loadCategoriesForPage();
 
     if (selectedCategoryId && String(selectedCategoryId) === String(categoryId)) {
-      await selectCategory(
-        categoryId,
-        document.getElementById('parent-category').selectedOptions[0].textContent
-      );
+      await selectCategory(categoryId, selectedCategoryName);
     }
   } catch (error) {
     console.error('Add subcategory error:', error);
@@ -211,6 +217,8 @@ async function deleteCategory(id) {
 
     if (selectedCategoryId === id) {
       selectedCategoryId = null;
+      selectedCategoryName = '';
+      updateSubcategoriesHeading();
       document.getElementById('subcategories-list').innerHTML =
         '<div class="empty-state">Select a category to view subcategories</div>';
     }
@@ -235,7 +243,7 @@ async function deleteSubcategory(id) {
     }
 
     if (selectedCategoryId) {
-      await selectCategory(selectedCategoryId, 'selected category');
+      await selectCategory(selectedCategoryId, selectedCategoryName);
     }
 
     showDeleteMessage('Subcategory deleted', 'success');
@@ -285,6 +293,15 @@ function showMessage(id, text, type) {
       el.className = '';
     }
   }, 2500);
+}
+
+function updateSubcategoriesHeading(categoryName = '') {
+  const heading = document.getElementById('subcategories-heading');
+  if (!heading) return;
+
+  heading.textContent = categoryName
+    ? `Subcategories for: ${categoryName}`
+    : 'Subcategories';
 }
 
 function escapeHtml(value) {
